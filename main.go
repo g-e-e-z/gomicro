@@ -1,33 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/g-e-e-z/gomicro/handlers"
 )
 
-func index(w http.ResponseWriter, r *http.Request) {
-    log.Println("Hello world")
-    d, err := ioutil.ReadAll(r.Body)
-    if err != nil {
-        http.Error(w, "Oops", http.StatusBadRequest)
-        return
-    }
-
-    log.Printf("Data %s\n", d)
-
-    fmt.Fprintf(w, "Hello %s\n", d)
-}
-
-func bye(w http.ResponseWriter, r *http.Request) {
-    log.Println("Goodbye world")
-}
-
 func main() {
-    http.HandleFunc("/", index)
-    http.HandleFunc("/g", bye)
-    http.ListenAndServe(":3000", nil)
+    l := log.New(os.Stdout, "[product-api] ", log.LstdFlags)
+    hh := handlers.NewHello(l)
+    gh := handlers.NewGoodbye(l)
+
+    sm := http.NewServeMux()
+    sm.Handle("/", hh)
+    sm.Handle("/g", gh)
+
+    http.ListenAndServe(":3000", sm)
 }
 
 /*
